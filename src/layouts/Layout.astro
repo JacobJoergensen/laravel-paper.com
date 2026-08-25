@@ -1,0 +1,84 @@
+---
+import "../styles/global.css";
+import { Font } from "astro:assets";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+}
+
+const {
+    title = "Laravel Paper - A flat-file Eloquent driver for modern Laravel",
+    description =
+        "Laravel Paper is a Laravel package that adds flat-file driver support for Eloquent. It supports Markdown and JSON files and works with Laravel 12+ on PHP 8.4+.",
+    image = "/og-image.png",
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const socialImageURL = new URL(image, Astro.site);
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+    <head>
+        <script is:inline>
+            try {
+                const stored = localStorage.getItem("theme");
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+                document.documentElement.dataset.theme = stored ?? (prefersDark ? "dark" : "light");
+            } catch (e) {}
+        </script>
+
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="generator" content={Astro.generator} />
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalURL} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalURL} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={socialImageURL} />
+        <meta name="twitter:card" content="summary_large_image" />
+
+        <Font cssVariable="--font-inter" preload />
+        <Font cssVariable="--font-newsreader" preload />
+        <Font cssVariable="--font-jetbrains-mono" />
+    </head>
+    <body class="min-h-screen overflow-x-hidden bg-canvas font-sans text-ink antialiased">
+        <a
+            href="#main"
+            class="sr-only focus:not-sr-only focus:fixed focus:left-7 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-accent-ink focus:no-underline"
+        >
+            Skip to content
+        </a>
+        <slot />
+        <Footer />
+
+        <script>
+            document.addEventListener("click", (e) => {
+                const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+                    "[data-copy-text]",
+                );
+
+                if (!btn) {
+                    return;
+                }
+
+                navigator.clipboard?.writeText(btn.dataset.copyText ?? "").catch(() => {});
+
+                btn.textContent = "✓ Copied";
+
+                setTimeout(() => {
+                    btn.textContent = "Copy";
+                }, 1500);
+            });
+        </script>
+    </body>
+</html>

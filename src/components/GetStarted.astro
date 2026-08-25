@@ -1,0 +1,104 @@
+---
+import { Code } from "astro:components";
+import { shiki } from "../config/Code";
+import { examples } from "../config/Examples";
+
+const paneHeader =
+    "flex items-center justify-between gap-3 border-b border-hairline bg-canvas-raised px-4 py-2.5 font-mono text-[11.5px] text-ink-faint";
+---
+
+<div class="mb-7.5 flex flex-wrap items-end justify-between gap-4">
+    <h2 class="m-0 font-display text-[clamp(28px,3.6vw,40px)] font-medium tracking-[-0.02em]">
+        Get started
+    </h2>
+
+    <div
+        class="flex gap-1 rounded-[9px] border border-hairline bg-canvas-raised p-1"
+        role="tablist"
+        aria-label="Content format"
+    >
+        {
+            examples.map((ex, i) => (
+                <button
+                    type="button"
+                    role="tab"
+                    id={`example-tab-${ex.id}`}
+                    aria-controls={`example-panel-${ex.id}`}
+                    aria-selected={i === 0 ? "true" : "false"}
+                    class="cursor-pointer rounded-md border-0 bg-transparent px-3.5 py-1.5 font-mono text-[12.5px] text-ink-muted transition aria-selected:bg-accent aria-selected:text-accent-ink"
+                >
+                    {ex.label}
+                </button>
+            ))
+        }
+    </div>
+</div>
+
+<paper-tabs>
+    {
+        examples.map((ex, i) => (
+            <div
+                id={`example-panel-${ex.id}`}
+                role="tabpanel"
+                aria-labelledby={`example-tab-${ex.id}`}
+                hidden={i !== 0}
+                class="example-grid grid grid-cols-2 gap-4 max-[860px]:grid-cols-1"
+            >
+                <div class="flex flex-col overflow-hidden rounded-xl border border-hairline shadow-lift">
+                    <div class={paneHeader}>
+                        <span>{ex.file}</span>
+                        <span class="text-ink-faint">on disk</span>
+                    </div>
+                    <Code code={ex.content} lang={ex.lang} {...shiki} />
+                </div>
+
+                <div class="flex flex-col overflow-hidden rounded-xl border border-hairline shadow-lift">
+                    <div class={paneHeader}>
+                        <span>{ex.codeFile}</span>
+                        <span class="text-accent">Eloquent</span>
+                    </div>
+                    <Code code={ex.code} lang="php" {...shiki} />
+                </div>
+            </div>
+        ))
+    }
+</paper-tabs>
+
+<style>
+    :global(.example-grid pre.astro-code) {
+        flex: 1;
+        margin: 0;
+        padding: 16px 18px;
+        min-height: 260px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.62;
+    }
+</style>
+
+<script>
+    class PaperTabs extends HTMLElement {
+        panels = Array.from(this.querySelectorAll<HTMLElement>("[role=tabpanel]"));
+        tabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[role=tablist] [role=tab]"));
+
+        constructor() {
+            super();
+
+            this.tabs.forEach((tab, i) => {
+                tab.addEventListener("click", () => this.select(i));
+            });
+        }
+
+        select(index: number) {
+            this.tabs.forEach((tab, i) => {
+                tab.setAttribute("aria-selected", String(i === index));
+            });
+
+            this.panels.forEach((panel, i) => {
+                panel.hidden = i !== index;
+            });
+        }
+    }
+
+    customElements.define("paper-tabs", PaperTabs);
+</script>

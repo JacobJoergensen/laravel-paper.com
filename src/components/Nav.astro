@@ -1,0 +1,210 @@
+---
+import CloseIcon from "./icons/CloseIcon.astro";
+import GitHubIcon from "./icons/GitHubIcon.astro";
+import MenuIcon from "./icons/MenuIcon.astro";
+import MoonIcon from "./icons/MoonIcon.astro";
+import SunIcon from "./icons/SunIcon.astro";
+import { getDocsNav } from "../config/DocsNav";
+
+interface Props {
+    section?: "docs" | "changelog";
+    currentId?: string;
+}
+
+const { section, currentId } = Astro.props;
+
+const links = [
+    { label: "Docs", href: "/docs/getting-started", key: "docs" },
+    { label: "Changelog", href: "/docs/changelog", key: "changelog" },
+];
+
+const repoUrl = "https://github.com/jacobjoergensen/laravel-paper";
+
+const MENU_ID = "mobile-menu";
+
+const docsNav = section ? await getDocsNav() : [];
+---
+
+<nav class="sticky top-0 z-40 flex h-(--nav-height) items-center justify-between gap-6 border-b border-hairline bg-nav px-(--gutter) backdrop-blur-md">
+    <a href="/" class="flex items-center gap-2.5 text-ink no-underline">
+        <span
+            class="grid size-6.5 shrink-0 place-items-center rounded-md bg-accent pb-px font-display text-[15px] leading-none text-accent-ink"
+            aria-hidden="true">&para;</span
+        >
+        <span class="font-mono text-[15px] font-semibold tracking-[-0.3px]">laravel-paper</span>
+        {
+            section && (
+                <span class="ml-0.5 rounded-[5px] border border-hairline px-1.5 py-0.5 font-mono text-[11px] text-ink-faint">
+                    {section}
+                </span>
+            )
+        }
+    </a>
+
+    <div class="flex items-center gap-5.5 text-sm">
+        <div class="flex items-center gap-5.5 max-[900px]:hidden">
+            {
+                links.map((l) => (
+                    <a
+                        href={l.href}
+                        class:list={[
+                            "no-underline transition-colors hover:text-accent",
+                            l.key === section ? "text-ink" : "text-ink-muted",
+                        ]}
+                    >
+                        {l.label}
+                    </a>
+                ))
+            }
+
+            <a
+                href={repoUrl}
+                class="flex items-center text-ink-muted transition-colors hover:text-ink"
+                aria-label="GitHub repository"
+            >
+                <GitHubIcon size={17} />
+            </a>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <button
+                type="button"
+                class="grid size-7.75 cursor-pointer place-items-center rounded-[7px] border border-hairline bg-transparent text-ink-muted transition-colors hover:border-hairline-strong hover:text-ink"
+                aria-label="Toggle color theme"
+                data-theme-toggle
+            >
+                <MoonIcon size={15} class="dark:hidden" />
+                <SunIcon size={15} class="light:hidden" />
+            </button>
+
+            <nav-menu class="min-[901px]:hidden">
+                <button
+                    type="button"
+                    class="group grid size-7.75 cursor-pointer place-items-center rounded-[7px] border border-hairline bg-transparent text-ink-muted transition-colors hover:border-hairline-strong hover:text-ink"
+                    aria-label="Open menu"
+                    aria-expanded="false"
+                    aria-controls={MENU_ID}
+                    data-menu-button
+                >
+                    <MenuIcon size={16} class="group-aria-expanded:hidden" />
+                    <CloseIcon size={16} class="hidden group-aria-expanded:block" />
+                </button>
+            </nav-menu>
+        </div>
+    </div>
+
+    <div
+        id={MENU_ID}
+        class="absolute left-0 right-0 top-full hidden max-h-[75dvh] overflow-y-auto border-b border-hairline bg-canvas px-(--gutter) pb-8 pt-6 min-[901px]:hidden"
+        data-menu-panel
+    >
+        <div class="flex flex-col gap-px">
+            {
+                links.map((l) => (
+                    <a
+                        href={l.href}
+                        class:list={[
+                            "rounded-md px-2.5 py-2.5 text-[15px] no-underline transition-colors hover:text-ink",
+                            l.key === section ? "text-ink" : "text-ink-muted",
+                        ]}
+                    >
+                        {l.label}
+                    </a>
+                ))
+            }
+
+            <a
+                href={repoUrl}
+                class="flex items-center gap-2.5 rounded-md px-2.5 py-2.5 text-[15px] text-ink-muted no-underline transition-colors hover:text-ink"
+            >
+                <GitHubIcon size={16} /> GitHub
+            </a>
+        </div>
+
+        {
+            section && (
+                <div class="mt-6 border-t border-hairline pt-6">
+                    {docsNav.map((g) => (
+                        <div class="mb-5.5 last:mb-0">
+                            <div class="mb-2.5 font-mono text-[10.5px] uppercase tracking-widest text-ink-faint">
+                                {g.group}
+                            </div>
+                            <div class="flex flex-col gap-px">
+                                {g.items.map((it) => (
+                                    <a
+                                        href={it.slug ? `/docs/${it.slug}` : (it.href ?? "#")}
+                                        class:list={[
+                                            "rounded-md border-l-2 border-l-transparent px-2.5 py-2 text-[14px] no-underline transition hover:text-ink",
+                                            it.slug === currentId
+                                                ? "border-l-accent bg-canvas-raised font-medium text-ink"
+                                                : "text-ink-muted",
+                                        ]}
+                                    >
+                                        {it.title}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</nav>
+
+<script>
+    document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+
+            document.documentElement.dataset.theme = next;
+
+            try {
+                localStorage.setItem("theme", next);
+            } catch (e) {}
+        });
+    });
+</script>
+
+<script>
+    class NavMenu extends HTMLElement {
+        btn = this.querySelector<HTMLButtonElement>("[data-menu-button]")!;
+        nav = this.closest("nav")!;
+        panel = this.closest("nav")!.querySelector<HTMLElement>("[data-menu-panel]")!;
+
+        constructor() {
+            super();
+
+            this.btn.addEventListener("click", () => {
+                this.setExpanded(this.btn.getAttribute("aria-expanded") !== "true");
+            });
+
+            this.nav.addEventListener("keyup", (e) => {
+                if ((e as KeyboardEvent).code === "Escape") {
+                    this.setExpanded(false);
+                    this.btn.focus();
+                }
+            });
+
+            matchMedia("(min-width: 901px)").addEventListener("change", () => {
+                this.setExpanded(false);
+            });
+        }
+
+        setExpanded(expanded: boolean) {
+            this.btn.setAttribute("aria-expanded", String(expanded));
+            this.btn.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+            this.panel.classList.toggle("hidden", !expanded);
+
+            document.documentElement.classList.toggle("overflow-hidden", expanded);
+
+            for (const el of document.body.children) {
+                if (el !== this.nav) {
+                    el.toggleAttribute("inert", expanded);
+                }
+            }
+        }
+    }
+
+    customElements.define("nav-menu", NavMenu);
+</script>

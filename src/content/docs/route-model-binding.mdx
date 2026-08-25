@@ -1,0 +1,45 @@
+---
+title: Route model binding
+description: Type-hint a Paper model in a route and it resolves on the slug, or on any field you name.
+group: Reference
+order: 100
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+```php
+Route::get('/posts/{post}', function (Post $post) {
+    return view('posts.show', ['post' => $post]);
+});
+```
+
+`/posts/hello-world` loads `content/posts/hello-world.md`, and a missing file gives a 404.
+
+## Binding on another field
+
+Name a frontmatter field to resolve on that instead:
+
+```php
+Route::get('/blog/{post:permalink}', function (Post $post) {
+    // ...
+});
+```
+
+Or set it once on the model:
+
+```php
+class Post extends Model
+{
+    use Paper;
+
+    public function getRouteKeyName(): string
+    {
+        return 'permalink';
+    }
+}
+```
+
+<Callout label="note">
+    Scoped child bindings, like `/authors/{author}/posts/{post}` where the child is looked up within the parent, raise
+    `UnsupportedRouteBindingException`. Resolve the child in the controller instead.
+</Callout>

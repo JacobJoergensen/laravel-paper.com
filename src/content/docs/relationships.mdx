@@ -1,0 +1,86 @@
+---
+title: Relationships
+description: A frontmatter field is the foreign key between two content directories.
+group: Usage
+order: 60
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+Two content directories are joined through a frontmatter field. A post names its author:
+
+```markdown
+---
+title: Hello World
+author_slug: jane-doe
+---
+```
+
+And the model reads it:
+
+```php
+class Post extends Model
+{
+    use Paper;
+
+    public function author()
+    {
+        return $this->belongsToPaper(Author::class);
+    }
+}
+
+class Author extends Model
+{
+    use Paper;
+
+    public function posts()
+    {
+        return $this->hasManyPaper(Post::class);
+    }
+}
+```
+
+```php
+$post = Post::find('hello-world');
+$author = $post->author();
+
+$author = Author::find('jane-doe');
+$posts = $author->posts();
+```
+
+<Callout label="note">
+    Call these as methods, not as properties. They return a model or a collection directly, not a relation object, so
+    there is nothing to chain constraints onto and nothing to eager load.
+</Callout>
+
+## Foreign keys
+
+Each side derives its own default. `belongsToPaper` reads a field on this record named after the
+related model, and `hasManyPaper` matches a field on the related records named after this one.
+Both are the snake-cased class basename with a `_slug` suffix:
+
+| Relationship                            | Field it reads               |
+| --------------------------------------- | ---------------------------- |
+| `belongsToPaper(Author::class)`         | `author_slug` on this record |
+| `hasManyPaper(Post::class)` on `Author` | `author_slug` on each post   |
+
+Pass a second argument to use a different one:
+
+```php
+$this->belongsToPaper(Author::class, 'written_by');
+```
+
+`belongsToPaper` returns `null` when the field is absent or the related file does not exist.
+
+## Reading them in a loop
+
+`hasManyPaper` reads the whole related directory every time it is called, so calling it per record
+rescans that directory per record. Load the other side once and group it instead:
+
+```php
+$posts = Post::all()->groupBy('author_slug');
+
+foreach (Author::all() as $author) {
+    $authorPosts = $posts->get($author->slug, collect());
+}
+```

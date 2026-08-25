@@ -1,0 +1,69 @@
+---
+title: Custom drivers
+description: Markdown and JSON ship with Paper. Any other format is a class that turns a file into an array, and an array back into a file.
+group: Reference
+order: 110
+---
+
+## Implement the contract
+
+```php
+use JacobJoergensen\LaravelPaper\Contracts\DriverContract;
+
+final class YamlDriver implements DriverContract
+{
+    public function extensions(): array
+    {
+        return ['yaml', 'yml'];
+    }
+
+    public function parse(string $filepath): array
+    {
+        // return the file's data as an array
+    }
+
+    public function serialize(array $data): string
+    {
+        // return the file contents to write
+    }
+}
+```
+
+`extensions` is ordered. When one slug exists under two of them, the first in the list wins, so put
+the canonical extension first.
+
+`parse` receives an absolute path and returns the attributes. Throw `FileParseException` for a file
+it cannot read or parse.
+
+`serialize` receives the attributes and returns the file's contents. The `slug` key is the
+filename, so leave it out of what you write.
+
+## Register it
+
+In a service provider:
+
+```php
+use JacobJoergensen\LaravelPaper\Drivers\DriverRegistry;
+
+public function boot(): void
+{
+    app(DriverRegistry::class)->register('yaml', YamlDriver::class);
+}
+```
+
+The driver is resolved from the container, so constructor dependencies are injected. Registering a
+name that already exists replaces it, which is how you swap out the built-in Markdown or JSON
+driver.
+
+## Use it
+
+```php
+#[Driver('yaml')]
+#[ContentPath('content/settings')]
+class Setting extends Model
+{
+    use Paper;
+}
+```
+
+A `#[Driver]` name with no registration raises `InvalidDriverException` on the first query.

@@ -1,0 +1,40 @@
+---
+title: Validation
+description: PaperRule gives Laravel's validator two rules, one for a free slug and one for a record that must exist.
+group: Reference
+order: 90
+---
+
+`PaperRule` provides two rules for Laravel's validator:
+
+```php
+use JacobJoergensen\LaravelPaper\Rules\PaperRule;
+
+$request->validate([
+    'slug' => ['required', PaperRule::unique(Post::class)],
+    'author_slug' => ['required', PaperRule::exists(Author::class)],
+]);
+```
+
+Both check the `slug` column by default. Pass a second argument to check another field:
+
+```php
+PaperRule::unique(Post::class, 'permalink');
+PaperRule::exists(Author::class, 'email');
+```
+
+## Ignoring the current record
+
+On an update, the record being edited already holds the value. Skip it:
+
+```php
+PaperRule::unique(Post::class)->ignore($post->slug);
+```
+
+`ignore` matches on the model's key, which is `slug`. Pass a column as the second argument to
+identify the current record by a different field.
+
+## Messages
+
+Failures use Laravel's own `validation.unique` and `validation.exists` translation lines, so they
+follow the application locale and any customization in `lang/`.

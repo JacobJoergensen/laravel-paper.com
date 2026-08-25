@@ -1,0 +1,93 @@
+---
+title: Defining models
+description: A Paper model is an Eloquent model with two attributes and the Paper trait.
+group: Introduction
+order: 20
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use JacobJoergensen\LaravelPaper\Attributes\ContentPath;
+use JacobJoergensen\LaravelPaper\Attributes\Driver;
+use JacobJoergensen\LaravelPaper\Paper;
+
+#[Driver('markdown')]
+#[ContentPath('content/posts')]
+class Post extends Model
+{
+    use Paper;
+}
+```
+
+## The attributes
+
+`#[Driver]` names the format. Markdown and JSON ship with the package, and
+[custom drivers](/docs/custom-drivers) add more.
+
+| Driver     | Extensions         |
+| ---------- | ------------------ |
+| `markdown` | `.md`, `.markdown` |
+| `json`     | `.json`            |
+
+`#[ContentPath]` is the directory, relative to the application root.
+
+Both resolve the first time the model is used, not when it is constructed. A missing directory
+raises `ContentPathNotFoundException` on the first query, and an unregistered driver name raises
+`InvalidDriverException`.
+
+## One flat directory per model
+
+Paper reads the directory itself, not the tree below it, so give each model its own folder:
+
+```
+content/
+├── posts/      → Post
+├── team/       → TeamMember
+└── releases/   → Release
+```
+
+If a slug exists under more than one of a driver's extensions, the first extension listed wins.
+For Markdown that is `.md` before `.markdown`.
+
+## The slug is the primary key
+
+The trait sets the key name to `slug`, the key type to string, and turns off incrementing:
+
+```php
+$post = Post::find('hello-world');
+
+$post->slug;     // "hello-world"
+$post->getKey(); // "hello-world"
+```
+
+The slug is the filename, and it is never written into the file. Renaming the file renames the
+record.
+
+## What still works
+
+Everything that does not depend on a connection:
+
+- Casts, accessors, mutators and `$fillable`
+- Query scopes, including methods marked with Laravel's `#[Scope]` attribute
+- `#[CollectedBy]` for a custom collection class
+- Model events, including `retrieved` when a query builds a record
+- [Route model binding](/docs/route-model-binding)
+
+<Callout label="note">Timestamps are off unless you add `#[Timestamps]`. See [Timestamps](/docs/timestamps).</Callout>
+
+## Casts
+
+Casts run against the parsed file:
+
+```php
+protected $casts = [
+    'date' => 'date',
+    'published' => 'boolean',
+    'tags' => 'array',
+];
+```
+
+An `array`, `json`, `object` or `collection` cast is written back as real YAML or JSON structure,
+not as an encoded string.

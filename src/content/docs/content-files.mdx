@@ -1,0 +1,110 @@
+---
+title: Content files
+description: Frontmatter becomes attributes, the body becomes content, and the filename becomes the slug.
+group: Introduction
+order: 30
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+## Markdown
+
+Frontmatter keys become attributes, and the body becomes `content`:
+
+```markdown
+---
+title: Hello World
+published: true
+tags: [laravel, markdown]
+---
+
+Your Markdown content goes here...
+```
+
+```php
+$post = Post::find('hello-world');
+
+$post->title;   // "Hello World"
+$post->tags;    // ["laravel", "markdown"]
+$post->content; // "Your Markdown content goes here..."
+```
+
+The body is trimmed and stored as written. Paper does not render Markdown, so pass `content`
+through `Str::markdown()` at the point of display.
+
+A file with no frontmatter is still a record, with a slug and a `content` attribute. Saving a
+record that has only content writes no frontmatter block.
+
+<Callout label="yaml">
+    An unquoted `date: 2024-03-15` is a Unix timestamp to YAML, not a string. Quote it, or add a `'date' => 'date'`
+    cast, so range comparisons behave.
+</Callout>
+
+## JSON
+
+The object is the attribute set, and there is no separate body:
+
+```json
+{
+    "name": "Jane Doe",
+    "role": "Developer",
+    "github": "janedoe"
+}
+```
+
+```php
+$member = TeamMember::find('jane-doe');
+$devs = TeamMember::where('role', 'Developer')->get();
+```
+
+The root has to be an object. Files are written back pretty-printed, with forward slashes and
+unicode left unescaped.
+
+## Filenames and slugs
+
+The filename without its extension is the slug, and the slug is the primary key:
+
+```
+content/posts/
+├── hello-world.md        → slug: "hello-world"
+├── my-second-post.md     → slug: "my-second-post"
+└── draft-post.md         → slug: "draft-post"
+```
+
+```php
+$post = Post::find('hello-world');
+$posts = Post::findMany(['hello-world', 'my-second-post']);
+```
+
+Dotfiles are skipped. To change a slug, rename the file. A slug cannot contain `/`, `\`, `.` or
+`..`, since those would point outside the content directory.
+
+## URLs that differ from the filename
+
+Add a frontmatter field and route on that instead of the slug:
+
+```markdown
+---
+title: Hello World
+permalink: /blog/2024/hello-world
+---
+```
+
+```php
+Post::where('permalink', $path)->first();
+```
+
+[Route model binding](/docs/route-model-binding) can resolve on that field directly.
+
+## When a file cannot be read
+
+Malformed frontmatter or invalid JSON raises `FileParseException`, and the message names the file
+that failed. Every Paper exception extends `PaperException`:
+
+| Exception                          | Raised when                                                 |
+| ---------------------------------- | ----------------------------------------------------------- |
+| `ContentPathNotFoundException`     | The content directory does not exist                        |
+| `FileParseException`               | A file is unreadable, or its frontmatter or JSON is invalid |
+| `InvalidDriverException`           | `#[Driver]` names a driver that is not registered           |
+| `InvalidSlugException`             | A slug is missing, or contains a separator or a dot segment |
+| `UnsupportedRouteBindingException` | A scoped child binding is resolved through a Paper model    |

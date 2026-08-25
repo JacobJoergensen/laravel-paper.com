@@ -1,0 +1,52 @@
+---
+import { getEntry } from "astro:content";
+
+import Bento from "../components/Bento.astro";
+import Hero from "../components/Hero.astro";
+import Nav from "../components/Nav.astro";
+import GetStarted from "../components/GetStarted.astro";
+import Layout from "../layouts/Layout.astro";
+
+const changelog = await getEntry("docs", "changelog");
+const release = /^## Version (\S+) \((\d{4}-\d{2}-\d{2})\)/m.exec(changelog?.body ?? "");
+
+const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    name: "Laravel Paper",
+    description: "A flat-file Eloquent driver for modern Laravel.",
+    programmingLanguage: "PHP",
+    runtimePlatform: "Laravel 12+, PHP 8.4+",
+    version: release?.[1],
+    dateModified: release?.[2],
+    url: "https://laravel-paper.com",
+    codeRepository: "https://github.com/jacobjoergensen/laravel-paper",
+    sameAs: ["https://packagist.org/packages/jacobjoergensen/laravel-paper"],
+    license: "https://opensource.org/license/mit",
+    author: {
+        "@type": "Person",
+        name: "Jacob Jørgensen",
+        url: "https://github.com/jacobjoergensen",
+    },
+};
+
+const section = "mx-auto max-w-wide px-(--gutter) pt-28 max-[860px]:pt-20";
+---
+
+<Layout>
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <Nav />
+    <main id="main" tabindex="-1" class="scroll-mt-20 focus:outline-none">
+        <section class="mx-auto max-w-wide px-(--gutter) pt-24 max-[860px]:pt-16">
+            <Hero />
+        </section>
+
+        <section class={section}>
+            <GetStarted />
+        </section>
+
+        <section class={section}>
+            <Bento />
+        </section>
+    </main>
+</Layout>

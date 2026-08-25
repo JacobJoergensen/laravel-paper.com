@@ -1,0 +1,98 @@
+---
+import { Code } from "astro:components";
+import { shiki } from "../config/Code";
+
+const tiles = [
+    {
+        title: "Querying",
+        body: `<code>where</code>, <code>whereIn</code>, <code>whereBetween</code>, <code>whereNull</code>, <code>whereAny</code>, ordering, limits and <code>when</code>, plus <code>whereContains</code> for array fields and <code>count</code>, <code>sum</code>, <code>min</code>, <code>max</code>, <code>avg</code>.`,
+        span: true,
+        code: `Post::whereContains('tags', 'laravel')
+    ->whereNotLike('title', '%draft%')
+    ->latest('date')
+    ->get();`,
+    },
+    {
+        title: "Writing",
+        body: `<code>save</code>, <code>create</code>, <code>updateOrCreate</code> and <code>delete</code> write the file. Model events fire, and <code>saveQuietly</code> skips them.`,
+    },
+    {
+        title: "Relationships",
+        body: `<code>belongsToPaper</code> and <code>hasManyPaper</code> join two content directories on a <code>{model}_slug</code> field.`,
+    },
+    {
+        title: "Large result sets",
+        body: `<code>lazy</code>, <code>chunk</code> and <code>each</code> walk thousands of files one at a time. A <code>paginate</code> with no <code>where</code> reads only the page it returns.`,
+        span: true,
+    },
+    {
+        title: "Route model binding",
+        body: `<code>{post}</code> resolves on the slug and <code>{post:permalink}</code> on any frontmatter field.`,
+    },
+    {
+        title: "Timestamps",
+        body: `<code>#[Timestamps]</code> exposes the file&rsquo;s modification time as <code>updated_at</code>.`,
+    },
+    {
+        title: "Validation",
+        body: `<code>PaperRule::unique</code> and <code>PaperRule::exists</code> drop straight into Laravel&rsquo;s validator.`,
+    },
+    {
+        title: "Custom drivers",
+        body: `Markdown and JSON ship with it. Implement <code>DriverContract</code>, register it, and <code>#[Driver('yaml')]</code> works the same.`,
+    },
+    {
+        title: "Boost skill",
+        body: `<code>php artisan boost:install</code> offers a Paper skill for AI agents.`,
+        span: true,
+    },
+];
+---
+
+<h2 class="mb-9 mt-0 font-display text-[clamp(28px,3.6vw,40px)] font-medium tracking-[-0.02em]">
+    Features
+</h2>
+
+<div class="bento grid grid-cols-4 gap-3.5 max-[860px]:grid-cols-2 max-[560px]:grid-cols-1">
+    {
+        tiles.map((tile) => (
+            <div
+                class:list={[
+                    "rounded-xl border border-hairline bg-canvas-raised p-6.5 transition hover:border-hairline-strong",
+                    tile.span && "col-span-2 max-[560px]:col-span-1",
+                ]}
+            >
+                <h3 class="mb-2.5 mt-0 font-display text-[19px] font-medium tracking-[-0.015em]">
+                    {tile.title}
+                </h3>
+                <p class="m-0 text-[14.5px] leading-[1.62] text-ink-muted" set:html={tile.body} />
+
+                {tile.code && (
+                    <div class="bento-code mt-5 overflow-hidden rounded-lg border border-hairline">
+                        <Code
+                            code={tile.code}
+                            lang="php"
+                            {...shiki}
+                        />
+                    </div>
+                )}
+            </div>
+        ))
+    }
+</div>
+
+<style>
+    :global(.bento p code) {
+        font-family: var(--font-mono), monospace;
+        font-size: 13px;
+        color: var(--color-quill);
+    }
+
+    :global(.bento-code pre.astro-code) {
+        margin: 0;
+        padding: 14px 16px;
+        overflow-x: auto;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+</style>

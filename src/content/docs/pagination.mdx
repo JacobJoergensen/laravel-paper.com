@@ -1,0 +1,53 @@
+---
+title: Pagination and large sets
+description: Paper hands back Laravel's paginators, and can walk a directory too big to load at once.
+group: Usage
+order: 80
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+```php
+$posts = Post::paginate(15);
+$posts = Post::simplePaginate(15);
+```
+
+Both return Laravel's paginators:
+
+```blade
+{{ $posts->links() }}
+```
+
+With no `where` clause, and ordered by slug or not ordered at all, `paginate` reads only the files
+on the page it returns. A `where`, a random order, or ordering by a frontmatter field means every
+file has to be read to work out which records belong on the page.
+
+Use `simplePaginate` when you do not need a total: it takes one record more than the page to know
+whether there is a next one, and never counts the directory.
+
+## Walking a large directory
+
+`get` builds a model for every match up front, so a few thousand files means a few thousand models
+held at once. `lazy` walks them one at a time:
+
+```php
+foreach (Post::query()->lazy() as $post) {
+    // ...
+}
+```
+
+`chunk` and `each` cover the same ground in batches:
+
+```php
+Post::chunk(100, function ($posts) {
+    foreach ($posts as $post) {
+        // ...
+    }
+});
+
+Post::each(function ($post) {
+    // ...
+});
+```
+
+<Callout label="note">Return `false` from a `chunk` or `each` callback to stop early.</Callout>

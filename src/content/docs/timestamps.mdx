@@ -1,0 +1,55 @@
+---
+title: Timestamps
+description: Paper models have no timestamps until you ask for them with the Timestamps attribute.
+group: Usage
+order: 70
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+Add `#[Timestamps]` to expose the file's modification time as `updated_at`:
+
+```php
+use JacobJoergensen\LaravelPaper\Attributes\Timestamps;
+
+#[Driver('markdown')]
+#[ContentPath('content/posts')]
+#[Timestamps]
+class Post extends Model
+{
+    use Paper;
+}
+```
+
+```php
+$post = Post::find('hello-world');
+
+$post->updated_at; // Carbon instance from the file's mtime
+
+$recent = Post::latest('updated_at')->get();
+```
+
+The value comes from the filesystem, and saving does not write it into frontmatter. A file that
+already has an `updated_at` field of its own keeps that field, and its value is used instead of
+the mtime.
+
+## created_at
+
+Paper does not derive a creation time. If you need one, put it in frontmatter and cast it:
+
+```markdown
+---
+title: Hello World
+created_at: "2024-03-15"
+---
+```
+
+```php
+protected $casts = ['created_at' => 'datetime'];
+```
+
+<Callout label="warning">
+    A Git checkout sets every file's mtime to the moment of the deploy, so `updated_at` on a freshly deployed server
+    says "just now" for the whole directory. Use it for content edited in place, and keep a frontmatter `date` for
+    anything deployed from a repository.
+</Callout>

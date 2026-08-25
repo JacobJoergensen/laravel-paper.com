@@ -1,0 +1,158 @@
+---
+title: Querying
+description: Queries behave the way they do against a table, from where and orderBy through to scopes.
+group: Usage
+order: 40
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+```php
+$posts = Post::where('published', true)
+    ->orderBy('date', 'desc')
+    ->limit(10)
+    ->get();
+```
+
+Frontmatter keys are the columns. A record whose file is missing the key does not match a
+comparison against it.
+
+## Finding one record
+
+```php
+Post::find('hello-world');                  // ?Post
+Post::findOrFail('hello-world');            // throws ModelNotFoundException
+Post::findOr('hello-world', fn () => null); // runs the callback when missing
+Post::findMany(['hello-world', 'about']);   // Collection
+
+Post::where('published', true)->first();
+Post::where('published', true)->firstOrFail();
+Post::where('published', true)->sole();     // exactly one, or it throws
+Post::firstWhere('title', 'Hello World');
+Post::where('published', true)->value('title');
+```
+
+`find` also applies the constraints already on the query:
+
+```php
+Post::where('published', true)->find('draft-post'); // null
+```
+
+## Constraints
+
+| Method                              | Matches                                                           |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `where($column, $value)`            | Equality, compared loosely                                        |
+| `where($column, $operator, $value)` | `=`, `==`, `===`, `!=`, `<>`, `!==`, `>`, `>=`, `<`, `<=`, `like` |
+| `whereIn` / `whereNotIn`            | Membership in a list of values                                    |
+| `whereNull` / `whereNotNull`        | A missing or null key                                             |
+| `whereBetween` / `whereNotBetween`  | An inclusive range, bounds read by position                       |
+| `whereContains`                     | A value inside an array field                                     |
+| `whereLike` / `whereNotLike`        | A `%` pattern, case insensitive by default                        |
+| `whereAny` / `whereAll`             | One constraint across several columns                             |
+
+Each has an `or` counterpart: `orWhere`, `orWhereIn`, `orWhereContains`, and so on.
+
+```php
+Post::whereContains('tags', 'laravel')->get();
+Post::whereLike('title', '%hello%')->get();
+Post::whereNotLike('title', '%draft%')->get();
+Post::whereAny(['title', 'content'], 'like', '%flat-file%')->get();
+Post::whereBetween('views', [100, 500])->get();
+```
+
+A `like` pattern is anchored, so `%` is needed at both ends to match a substring. `_` matches a
+single character. Pass `true` as the third argument to `whereLike` for a case-sensitive match.
+
+## Grouping and precedence
+
+`and` binds tighter than `or`, the way it does in SQL. Pass a closure to group a set of
+constraints:
+
+```php
+Post::where('published', true)
+    ->where(function ($query) {
+        $query->where('featured', true)
+            ->orWhere('pinned', true);
+    })
+    ->get();
+```
+
+Comparing a column to `null` checks for null rather than matching nothing:
+
+```php
+Post::where('reviewed_at', null)->get(); // same as whereNull('reviewed_at')
+```
+
+## Ordering and limits
+
+```php
+Post::orderBy('date', 'desc')->get();
+Post::orderByDesc('date')->get();
+Post::latest('date')->get();
+Post::oldest('date')->get();
+Post::inRandomOrder()->first();
+
+Post::limit(10)->offset(20)->get(); // take() and skip() are aliases
+```
+
+Multiple `orderBy` calls behave like SQL: the first column is primary, the rest are tiebreakers. A
+query with no order comes back in a stable slug order.
+
+## Conditional constraints
+
+```php
+Post::query()
+    ->when($request->tag, fn ($query, $tag) => $query->whereContains('tags', $tag))
+    ->unless($request->user(), fn ($query) => $query->where('published', true))
+    ->get();
+```
+
+## Counting and aggregates
+
+```php
+Post::count();
+Post::where('published', true)->exists();
+Post::where('draft', true)->doesntExist();
+
+Post::max('order');
+Post::min('order');
+Post::where('published', true)->sum('views');
+Post::avg('rating'); // average() is an alias
+```
+
+Null, missing and non-numeric values are skipped, the way SQL aggregates skip `NULL`. On an empty
+result `sum` returns `0` and the others return `null`.
+
+## Plucking values
+
+```php
+Post::pluck('title');         // Collection of titles
+Post::pluck('title', 'slug'); // keyed by slug
+```
+
+## Scopes
+
+Scopes work as they do on any model, including methods marked with Laravel's `#[Scope]` attribute:
+
+```php
+use Illuminate\Database\Eloquent\Attributes\Scope;
+
+class Post extends Model
+{
+    use Paper;
+
+    #[Scope]
+    protected function published($query)
+    {
+        return $query->where('published', true);
+    }
+}
+
+Post::published()->latest('date')->get();
+```
+
+<Callout label="note">
+    `get` builds a model for every match at once. For a directory with thousands of files, walk it with `lazy`, `chunk`
+    or `each` instead. See [Pagination and large sets](/docs/pagination).
+</Callout>

@@ -1,0 +1,83 @@
+---
+title: Getting started
+description: Install Laravel Paper and point a model at a folder of Markdown or JSON files.
+group: Introduction
+order: 10
+---
+
+import Callout from "../../components/docs/Callout.astro";
+import CodeBlock from "../../components/docs/CodeBlock.astro";
+
+## Install
+
+<CodeBlock code="composer require jacobjoergensen/laravel-paper" />
+
+The service provider is discovered automatically, and there is no config file to publish.
+
+## Add a content directory
+
+Content lives in your project, in a path relative to the application root:
+
+```
+content/posts/
+├── hello-world.md
+└── flat-file-blog.md
+```
+
+A post is frontmatter plus a body:
+
+```markdown
+---
+title: Hello World
+published: true
+date: "2024-03-15"
+tags: [laravel, markdown]
+---
+
+Your Markdown content goes here...
+```
+
+<Callout label="yaml">
+    YAML reads an unquoted `date: 2024-03-15` as a Unix timestamp. Quote it, or cast it with `'date' => 'date'`, so
+    comparisons like `where('date', '>', '2024-01-01')` work.
+</Callout>
+
+## Define the model
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use JacobJoergensen\LaravelPaper\Attributes\ContentPath;
+use JacobJoergensen\LaravelPaper\Attributes\Driver;
+use JacobJoergensen\LaravelPaper\Paper;
+
+#[Driver('markdown')]
+#[ContentPath('content/posts')]
+class Post extends Model
+{
+    use Paper;
+}
+```
+
+The filename without its extension is the slug, and the slug is the primary key.
+
+## Query it
+
+```php
+$posts = Post::where('published', true)
+    ->orderBy('date', 'desc')
+    ->get();
+
+$post = Post::find('hello-world');
+```
+
+Render it in Blade:
+
+```blade
+@foreach ($posts as $post)
+    <article>
+        <h2>{{ $post->title }}</h2>
+        <time>{{ $post->date }}</time>
+        <div>{!! Str::markdown($post->content) !!}</div>
+    </article>
+@endforeach
+```

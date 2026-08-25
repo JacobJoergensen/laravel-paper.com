@@ -1,0 +1,83 @@
+---
+title: Writing
+description: Saving a model writes a file, deleting one removes it, and events fire along the way.
+group: Usage
+order: 50
+---
+
+import Callout from "../../components/docs/Callout.astro";
+
+```php
+$post = new Post();
+$post->slug = 'hello-world';
+$post->title = 'Hello World';
+$post->content = 'My first post.';
+$post->save();
+
+$post->title = 'Updated title';
+$post->save();
+
+$post->delete();
+```
+
+Attributes other than `slug` become frontmatter. `content` becomes the Markdown body. The slug is
+the filename, so it is never written into the file itself.
+
+## Creating from an array
+
+```php
+Post::create([
+    'slug' => 'hello-world',
+    'title' => 'Hello World',
+]);
+
+Post::firstOrCreate(
+    ['slug' => 'hello-world'],
+    ['title' => 'Hello World'],
+);
+
+Post::firstOrNew(
+    ['slug' => 'hello-world'],
+    ['title' => 'Hello World'],
+);
+
+Post::updateOrCreate(
+    ['slug' => 'hello-world'],
+    ['title' => 'Updated title'],
+);
+```
+
+<Callout label="slug">
+    `create` requires a `slug` and does not derive one from another field. If your source data has no slug, generate one
+    yourself with `Str::slug($title)`. Creating without one raises `InvalidSlugException`.
+</Callout>
+
+## Bulk updates
+
+`update` on a query sets values across every matching record:
+
+```php
+Post::where('draft', true)->update(['published' => true]);
+```
+
+Each matching file is written in turn, so model events fire per record and `$fillable` does not
+apply. A failure part way through leaves the earlier writes applied.
+
+## Events
+
+`save` and `delete` fire the usual model events. To write without them:
+
+```php
+$post->saveQuietly();
+$post->deleteQuietly();
+```
+
+`retrieved` fires for each record a query returns. It is skipped by `count`, `exists`, `pluck`,
+and by bulk `update` and `delete`.
+
+## Reloading from disk
+
+```php
+$fresh = $post->fresh(); // a new instance
+$post->refresh();        // updates this one in place
+```

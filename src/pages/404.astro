@@ -1,0 +1,51 @@
+---
+import Nav from "../components/Nav.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="404: Page not found - Laravel Paper" description="This page does not exist.">
+    <Nav />
+    <main id="main" tabindex="-1" class="scroll-mt-20 focus:outline-none">
+        <section class="mx-auto flex min-h-[70vh] max-w-184 flex-col justify-center px-(--gutter) py-16">
+            <span
+                class="mb-6 font-display text-[clamp(64px,13vw,104px)] font-medium leading-[0.9] tracking-[-0.04em] text-accent"
+            >
+                404
+            </span>
+
+            <h1
+                class="mb-3.5 mt-0 font-display text-[clamp(26px,4vw,34px)] font-medium leading-[1.12] tracking-[-0.02em]"
+            >
+                Page not found.
+            </h1>
+
+            <p class="mb-8 mt-0 max-w-[52ch] text-[16.5px] leading-[1.65] text-ink-muted">
+                There is nothing at <code
+                    class="req-path rounded-md border border-hairline bg-canvas-raised px-1.5 py-0.5 font-mono text-[14px] text-ink"
+                    >this address</code
+                >. It may have moved.
+            </p>
+
+            <div class="flex flex-wrap gap-3">
+                <a
+                    href="/"
+                    class="inline-flex items-center gap-1.75 rounded-[9px] bg-accent px-4.5 py-2.5 text-[13.5px] font-semibold text-accent-ink no-underline transition hover:bg-accent-press active:translate-y-px"
+                >
+                    <span class="text-[15px]">&larr;</span> Back home
+                </a>
+                <a
+                    href="/docs/getting-started"
+                    class="inline-flex items-center gap-1.75 rounded-[9px] border border-hairline-strong px-4 py-2.5 text-[13.5px] font-medium text-ink no-underline transition hover:bg-canvas-raised"
+                >
+                    Read the docs
+                </a>
+            </div>
+        </section>
+    </main>
+</Layout>
+
+<script is:inline>
+    document.querySelectorAll(".req-path").forEach((el) => {
+        el.textContent = window.location.pathname;
+    });
+</script>
