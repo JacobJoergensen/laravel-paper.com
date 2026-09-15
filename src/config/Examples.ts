@@ -59,4 +59,28 @@ $developers = TeamMember::where('role', 'Developer')
     ->orderBy('name')
     ->get();`,
     },
+    {
+        id: "yaml",
+        label: "YAML",
+        file: "content/speakers/alex-rivera.yaml",
+        lang: "yaml",
+        content: `name: Alex Rivera
+# Shown under the talk title
+bio: |-
+    Joined in 2019.
+    Works on the storage layer.
+topics: [php, laravel]
+`,
+        codeFile: "app/Models/Speaker.php",
+        code: `#[Driver('yaml')]
+#[ContentPath('content/speakers')]
+class Speaker extends Model
+{
+    use Paper;
+}
+
+$speakers = Speaker::whereContains('topics', 'laravel')
+    ->orderBy('name')
+    ->get();`,
+    },
 ];

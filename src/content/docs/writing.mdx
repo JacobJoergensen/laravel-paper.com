@@ -23,6 +23,9 @@ $post->delete();
 Attributes other than `slug` become frontmatter. `content` becomes the Markdown body. The slug is
 the filename, so it is never written into the file itself.
 
+If the driver cannot encode a value, like invalid UTF-8 in a JSON file, `save` raises
+`FileSerializeException` and writes nothing.
+
 ## Creating from an array
 
 ```php
@@ -52,6 +55,22 @@ Post::updateOrCreate(
     yourself with `Str::slug($title)`. Creating without one raises `InvalidSlugException`.
 </Callout>
 
+Creating a record on a slug that already has a file raises `DuplicateSlugException` instead of
+overwriting it. Any of the driver's extensions counts, so `hello-world.markdown` blocks a new
+`hello-world`.
+
+## Changing a slug
+
+```php
+$post = Post::find('hello-world');
+$post->slug = 'hello-flat-files';
+$post->save();
+```
+
+Saving moves the file to the new slug and keeps its extension, so `hello-world.markdown` becomes
+`hello-flat-files.markdown`. If another record already holds the new slug, `save` returns `false`
+and changes nothing.
+
 ## Bulk updates
 
 `update` on a query sets values across every matching record:
@@ -73,7 +92,7 @@ $post->deleteQuietly();
 ```
 
 `retrieved` fires for each record a query returns. It is skipped by `count`, `exists`, `pluck`,
-and by bulk `update` and `delete`.
+`countBy`, and by bulk `update` and `delete`.
 
 ## Reloading from disk
 

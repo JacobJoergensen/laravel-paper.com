@@ -60,6 +60,35 @@ $devs = TeamMember::where('role', 'Developer')->get();
 The root has to be an object. Files are written back pretty-printed, with forward slashes and
 unicode left unescaped.
 
+## YAML
+
+The mapping is the attribute set, and there is no separate body. Unlike JSON, a file can hold
+comments and multi-line strings:
+
+```yaml
+name: Alex Rivera
+# Shown under the talk title
+bio: |-
+    Joined in 2019.
+    Works on the storage layer.
+topics: [php, laravel]
+```
+
+```php
+$speaker = Speaker::find('alex-rivera');
+
+$speaker->bio;    // "Joined in 2019.\nWorks on the storage layer."
+$speaker->topics; // ["php", "laravel"]
+```
+
+The root has to be a mapping, and an empty file is a record with no fields. Multi-line strings are
+written back as `|-` literal blocks. As in frontmatter, an unquoted date is a Unix timestamp.
+
+<Callout label="comments">
+    Saving rewrites the file from the record's attributes, so its comments are lost. That includes comments in Markdown
+    frontmatter.
+</Callout>
+
 ## Filenames and slugs
 
 The filename without its extension is the slug, and the slug is the primary key:
@@ -76,8 +105,9 @@ $post = Post::find('hello-world');
 $posts = Post::findMany(['hello-world', 'my-second-post']);
 ```
 
-Dotfiles are skipped. To change a slug, rename the file. A slug cannot contain `/`, `\`, `.` or
-`..`, since those would point outside the content directory.
+Dotfiles are skipped. To change a slug, rename the file, or set `slug` and
+[save](/docs/writing#changing-a-slug). A slug cannot contain `/`, `\`, `.` or `..`, since those
+would point outside the content directory.
 
 ## URLs that differ from the filename
 
@@ -98,13 +128,16 @@ Post::where('permalink', $path)->first();
 
 ## When a file cannot be read
 
-Malformed frontmatter or invalid JSON raises `FileParseException`, and the message names the file
+Malformed frontmatter, JSON or YAML raises `FileParseException`, and the message names the file
 that failed. Every Paper exception extends `PaperException`:
 
-| Exception                          | Raised when                                                 |
-| ---------------------------------- | ----------------------------------------------------------- |
-| `ContentPathNotFoundException`     | The content directory does not exist                        |
-| `FileParseException`               | A file is unreadable, or its frontmatter or JSON is invalid |
-| `InvalidDriverException`           | `#[Driver]` names a driver that is not registered           |
-| `InvalidSlugException`             | A slug is missing, or contains a separator or a dot segment |
-| `UnsupportedRouteBindingException` | A scoped child binding is resolved through a Paper model    |
+| Exception                           | Raised when                                                       |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `ContentPathNotFoundException`      | The content directory does not exist                              |
+| `DuplicateSlugException`            | A new record's slug already has a file                            |
+| `FileParseException`                | A file is unreadable, or its frontmatter, JSON or YAML is invalid |
+| `FileSerializeException`            | A driver cannot write a value                                     |
+| `InvalidDriverException`            | `#[Driver]` names a driver that is not registered                 |
+| `InvalidSlugException`              | A slug is missing, or contains a separator or a dot segment       |
+| `UnsupportedDatabaseQueryException` | `newQuery`, `newModelQuery` or `on` is called on a Paper model    |
+| `UnsupportedRouteBindingException`  | A scoped child binding is resolved through a Paper model          |

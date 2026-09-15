@@ -1,6 +1,6 @@
 ---
 title: Custom drivers
-description: Markdown and JSON ship with Paper. Any other format is a class that turns a file into an array, and an array back into a file.
+description: Markdown, JSON and YAML ship with Paper. Any other format is a class that turns a file into an array, and an array back into a file.
 group: Reference
 order: 110
 ---
@@ -10,11 +10,11 @@ order: 110
 ```php
 use JacobJoergensen\LaravelPaper\Contracts\DriverContract;
 
-final class YamlDriver implements DriverContract
+final class TomlDriver implements DriverContract
 {
     public function extensions(): array
     {
-        return ['yaml', 'yml'];
+        return ['toml'];
     }
 
     public function parse(string $filepath): array
@@ -36,7 +36,8 @@ the canonical extension first.
 it cannot read or parse.
 
 `serialize` receives the attributes and returns the file's contents. The `slug` key is the
-filename, so leave it out of what you write.
+filename, so leave it out of what you write. Throw `FileSerializeException` for a value it cannot
+write.
 
 ## Register it
 
@@ -47,18 +48,18 @@ use JacobJoergensen\LaravelPaper\Drivers\DriverRegistry;
 
 public function boot(): void
 {
-    app(DriverRegistry::class)->register('yaml', YamlDriver::class);
+    app(DriverRegistry::class)->register('toml', TomlDriver::class);
 }
 ```
 
 The driver is resolved from the container, so constructor dependencies are injected. Registering a
-name that already exists replaces it, which is how you swap out the built-in Markdown or JSON
-driver.
+name that already exists replaces it, which is how you swap out the built-in Markdown, JSON or
+YAML driver.
 
 ## Use it
 
 ```php
-#[Driver('yaml')]
+#[Driver('toml')]
 #[ContentPath('content/settings')]
 class Setting extends Model
 {

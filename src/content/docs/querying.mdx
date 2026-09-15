@@ -64,6 +64,8 @@ Post::whereBetween('views', [100, 500])->get();
 A `like` pattern is anchored, so `%` is needed at both ends to match a substring. `_` matches a
 single character. Pass `true` as the third argument to `whereLike` for a case-sensitive match.
 
+Operators are case insensitive, so `LIKE` works the same as `like`.
+
 ## Grouping and precedence
 
 `and` binds tighter than `or`, the way it does in SQL. Pass a closure to group a set of
@@ -123,6 +125,15 @@ Post::avg('rating'); // average() is an alias
 
 Null, missing and non-numeric values are skipped, the way SQL aggregates skip `NULL`. On an empty
 result `sum` returns `0` and the others return `null`.
+
+`countBy` tallies each distinct value of a column, in the order the values first appear:
+
+```php
+Post::countBy('category');                       // ['guide' => 2, 'archive' => 1]
+Post::where('published', true)->countBy('tags'); // ['laravel' => 2, 'php' => 1]
+```
+
+Each item in an array field like `tags` is counted, and null, missing or nested values are skipped.
 
 ## Plucking values
 

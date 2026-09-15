@@ -23,19 +23,40 @@ class Post extends Model
 
 ## The attributes
 
-`#[Driver]` names the format. Markdown and JSON ship with the package, and
+`#[Driver]` names the format. Markdown, JSON and YAML ship with the package, and
 [custom drivers](/docs/custom-drivers) add more.
 
 | Driver     | Extensions         |
 | ---------- | ------------------ |
 | `markdown` | `.md`, `.markdown` |
 | `json`     | `.json`            |
+| `yaml`     | `.yaml`, `.yml`    |
 
 `#[ContentPath]` is the directory, relative to the application root.
 
 Both resolve the first time the model is used, not when it is constructed. A missing directory
 raises `ContentPathNotFoundException` on the first query, and an unregistered driver name raises
 `InvalidDriverException`.
+
+## Extending a model
+
+A model that extends another inherits its `#[Driver]`, `#[ContentPath]` and `#[Timestamps]`.
+Declare one on the subclass to override just that attribute:
+
+```php
+#[Driver('markdown')]
+#[ContentPath('content/posts')]
+#[Timestamps]
+class Post extends Model
+{
+    use Paper;
+}
+
+#[ContentPath('content/archive')]
+class ArchivedPost extends Post {}
+```
+
+`ArchivedPost` reads Markdown from `content/archive`, with timestamps on.
 
 ## One flat directory per model
 
@@ -49,7 +70,7 @@ content/
 ```
 
 If a slug exists under more than one of a driver's extensions, the first extension listed wins.
-For Markdown that is `.md` before `.markdown`.
+For Markdown that is `.md` before `.markdown`, and for YAML `.yaml` before `.yml`.
 
 ## The slug is the primary key
 
@@ -73,7 +94,11 @@ Everything that does not depend on a connection:
 - Query scopes, including methods marked with Laravel's `#[Scope]` attribute
 - `#[CollectedBy]` for a custom collection class
 - Model events, including `retrieved` when a query builds a record
+- Model factories
 - [Route model binding](/docs/route-model-binding)
+
+`newQuery`, `newModelQuery` and `on` would return a database builder, so they raise
+`UnsupportedDatabaseQueryException`. Use `Post::query()` instead.
 
 <Callout label="note">Timestamps are off unless you add `#[Timestamps]`. See [Timestamps](/docs/timestamps).</Callout>
 
