@@ -1,6 +1,6 @@
 ---
 title: Querying
-description: Queries behave the way they do against a table, from where and orderBy through to scopes.
+description: Queries behave the way they do against a table, from where and orderBy through to global scopes.
 group: Usage
 order: 40
 ---
@@ -50,6 +50,9 @@ Post::where('published', true)->find('draft-post'); // null
 | `whereContains`                     | A value inside an array field                                     |
 | `whereLike` / `whereNotLike`        | A `%` pattern, case insensitive by default                        |
 | `whereAny` / `whereAll`             | One constraint across several columns                             |
+| `whereRegexp` / `whereNotRegexp`    | A regular expression                                              |
+| `whereColumn`                       | One field compared to another                                     |
+| `whereDate` and friends             | One part of a date                                                |
 
 Each has an `or` counterpart: `orWhere`, `orWhereIn`, `orWhereContains`, and so on.
 
@@ -59,12 +62,69 @@ Post::whereLike('title', '%hello%')->get();
 Post::whereNotLike('title', '%draft%')->get();
 Post::whereAny(['title', 'content'], 'like', '%flat-file%')->get();
 Post::whereBetween('views', [100, 500])->get();
+Post::whereRegexp('title', '/^v\d+\./')->get();
+Post::whereColumn('sale_price', '<', 'price')->get();
 ```
 
 A `like` pattern is anchored, so `%` is needed at both ends to match a substring. `_` matches a
 single character. Pass `true` as the third argument to `whereLike` for a case-sensitive match.
 
 Operators are case insensitive, so `LIKE` works the same as `like`.
+
+A regex pattern is passed to `preg_match` as is, so it needs its own delimiters. An invalid pattern
+throws `InvalidArgumentException` when the query is built, not when it runs.
+
+`whereColumn` needs both fields to be read the same way. Comparing a cast field to one without a
+cast throws `InvalidArgumentException`, since the two values would no longer be alike.
+
+## Several conditions at once
+
+Pass an array to `where` or `orWhere`, either as pairs or as `[column, operator, value]`:
+
+```php
+Post::where(['published' => true, 'category' => 'guide'])->get();
+
+Post::where([
+    ['status', '=', 'active'],
+    ['views', '>', 100],
+])->get();
+```
+
+The conditions are grouped, so `orWhere([...])` works like a closure full of `where` calls.
+
+## Nested frontmatter
+
+Use dot-notation to reach into a nested key:
+
+```yaml
+---
+title: Hello World
+seo:
+    title: Hello, flat files
+    index: true
+---
+```
+
+```php
+Post::where('seo.index', true)->orderBy('seo.title')->get();
+```
+
+It works in `where`, `orderBy` and the aggregates. A top-level key that has a dot in its name
+still wins over the nested lookup.
+
+## Dates
+
+`whereDate`, `whereYear`, `whereMonth` and `whereDay` read a frontmatter date and compare one part
+of it:
+
+```php
+Post::whereDate('date', '2026-09-25')->get();
+Post::whereDate('date', '>=', now()->subMonth())->get();
+Post::whereYear('date', 2026)->whereMonth('date', '<', 7)->get();
+```
+
+The value can be a string or any `DateTimeInterface`. A record whose date is missing or cannot
+be parsed does not match.
 
 ## Grouping and precedence
 
@@ -162,6 +222,58 @@ class Post extends Model
 
 Post::published()->latest('date')->get();
 ```
+
+## Global scopes
+
+A global scope applies to every query on the model, including `find` and route model binding.
+Register a closure in `booted`:
+
+```php
+protected static function booted(): void
+{
+    static::addGlobalScope('published', fn ($query) => $query->where('published', true));
+}
+```
+
+For a scope class, implement `ScopeContract` rather than Eloquent's `Scope`. A Paper query is not
+an Eloquent builder, so `apply` gets a `PaperQueryBuilder`:
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use JacobJoergensen\LaravelPaper\Contracts\ScopeContract;
+use JacobJoergensen\LaravelPaper\PaperQueryBuilder;
+
+class PublishedScope implements ScopeContract
+{
+    public function apply(PaperQueryBuilder $query, Model $model): void
+    {
+        $query->where('published', true);
+    }
+}
+```
+
+Add it with `addGlobalScope(new PublishedScope)`, or with Laravel's `#[ScopedBy]` attribute:
+
+```php
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
+
+#[ScopedBy(PublishedScope::class)]
+class Post extends Model
+{
+    use Paper;
+}
+```
+
+To leave a scope out of one query:
+
+```php
+Post::withoutGlobalScope(PublishedScope::class)->get();
+Post::withoutGlobalScope('published')->get();
+Post::withoutGlobalScopes()->get();
+```
+
+`fresh`, `refresh` and the `PaperRule` validation rules ignore global scopes, the same way
+Eloquent does.
 
 <Callout label="note">
     `get` builds a model for every match at once. For a directory with thousands of files, walk it with `lazy`, `chunk`

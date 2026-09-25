@@ -15,6 +15,9 @@ Route::get('/posts/{post}', function (Post $post) {
 
 `/posts/hello-world` loads `content/posts/hello-world.md`, and a missing file gives a 404.
 
+[Global scopes](/docs/querying#global-scopes) apply here too, so a record they filter out also
+gives a 404.
+
 ## Binding on another field
 
 Name a frontmatter field to resolve on that instead:

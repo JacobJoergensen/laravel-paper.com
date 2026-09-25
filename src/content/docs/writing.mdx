@@ -94,9 +94,20 @@ $post->deleteQuietly();
 `retrieved` fires for each record a query returns. It is skipped by `count`, `exists`, `pluck`,
 `countBy`, and by bulk `update` and `delete`.
 
+`getFilePath` returns the full path of the file a record lives in. It still works in a `deleted`
+listener, after the file is gone:
+
+```php
+Post::deleted(function (Post $post) {
+    Log::info('Removed '.$post->getFilePath());
+});
+```
+
 ## Reloading from disk
 
 ```php
 $fresh = $post->fresh(); // a new instance
 $post->refresh();        // updates this one in place
 ```
+
+Both skip global scopes, so a record that no longer matches one still reloads.

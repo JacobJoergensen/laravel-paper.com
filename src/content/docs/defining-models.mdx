@@ -32,7 +32,7 @@ class Post extends Model
 | `json`     | `.json`            |
 | `yaml`     | `.yaml`, `.yml`    |
 
-`#[ContentPath]` is the directory, relative to the application root.
+`#[ContentPath]` is the directory, relative to the application root unless it is an absolute path.
 
 Both resolve the first time the model is used, not when it is constructed. A missing directory
 raises `ContentPathNotFoundException` on the first query, and an unregistered driver name raises
@@ -57,6 +57,26 @@ class ArchivedPost extends Post {}
 ```
 
 `ArchivedPost` reads Markdown from `content/archive`, with timestamps on.
+
+## Choosing the directory at runtime
+
+When the directory depends on something only known at runtime, like the current locale or tenant,
+override `getContentPath`:
+
+```php
+class Post extends Model
+{
+    use Paper;
+
+    public function getContentPath(): string
+    {
+        return 'content/posts/'.app()->getLocale();
+    }
+}
+```
+
+It is called on every query and save, so the model follows the value as it changes. A relative
+path is resolved from the application root, and an absolute path is used as is.
 
 ## One flat directory per model
 
@@ -92,6 +112,7 @@ Everything that does not depend on a connection:
 
 - Casts, accessors, mutators and `$fillable`
 - Query scopes, including methods marked with Laravel's `#[Scope]` attribute
+- [Global scopes](/docs/querying#global-scopes), including `#[ScopedBy]`
 - `#[CollectedBy]` for a custom collection class
 - Model events, including `retrieved` when a query builds a record
 - Model factories

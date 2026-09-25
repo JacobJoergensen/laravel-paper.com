@@ -34,6 +34,11 @@ PaperRule::unique(Post::class)->ignore($post->slug);
 `ignore` matches on the model's key, which is `slug`. Pass a column as the second argument to
 identify the current record by a different field.
 
+## Global scopes
+
+Both rules look past the model's global scopes. A draft hidden by a `published` scope still
+counts, so `unique` will not let a new record take its slug.
+
 ## Messages
 
 Failures use Laravel's own `validation.unique` and `validation.exists` translation lines, so they
