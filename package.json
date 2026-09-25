@@ -14,17 +14,17 @@
         "node": ">=24.18.0"
     },
     "dependencies": {
-        "@astrojs/mdx": "^8.0.1",
+        "@astrojs/mdx": "^8.0.2",
         "@astrojs/sitemap": "^3.7.4",
-        "astro": "^7.3.3"
+        "astro": "^7.3.4"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
-        "oxfmt": "^0.68.0",
-        "oxlint": "^1.83.0",
+        "oxfmt": "^0.70.0",
+        "oxlint": "^1.85.0",
         "oxlint-tsgolint": "^7.0.2002",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
-        "wrangler": "^4.135.0"
+        "wrangler": "^4.137.0"
     }
 }
