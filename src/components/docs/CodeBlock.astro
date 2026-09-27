@@ -17,7 +17,8 @@ const { label = "Terminal", code, lang = "sh" } = Astro.props;
         <button
             type="button"
             class="inline-flex cursor-pointer items-center rounded-md border border-hairline bg-transparent px-2.25 py-1 font-mono text-[11px] text-ink-muted transition hover:border-hairline-strong hover:text-ink"
-            data-copy-text={code}>Copy</button
+            data-copy-text={code}
+            data-pagefind-ignore>Copy</button
         >
     </div>
     <Code code={code} lang={lang} {...shiki} />

@@ -1,5 +1,6 @@
 ---
 import Logo from "./Logo.astro";
+import Search from "./Search.astro";
 import CloseIcon from "./icons/CloseIcon.astro";
 import GitHubIcon from "./icons/GitHubIcon.astro";
 import MenuIcon from "./icons/MenuIcon.astro";
@@ -65,6 +66,8 @@ const docsNav = section ? await getDocsNav() : [];
         </div>
 
         <div class="flex items-center gap-2">
+            <Search />
+
             <button
                 type="button"
                 class="grid size-7.75 cursor-pointer place-items-center rounded-[7px] border border-hairline bg-transparent text-ink-muted transition-colors hover:border-hairline-strong hover:text-ink"

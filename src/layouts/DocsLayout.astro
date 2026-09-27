@@ -95,8 +95,8 @@ const editUrl = currentId === "changelog"
             tabindex="-1"
             class="docs-main min-w-0 scroll-mt-20 pb-28 pt-11 focus:outline-none max-[900px]:pt-8"
         >
-            <article class="docs-article max-w-195">
-                <div class="mb-5.5 flex flex-wrap items-center justify-between gap-4">
+            <article class="docs-article max-w-195" data-pagefind-body>
+                <div class="mb-5.5 flex flex-wrap items-center justify-between gap-4" data-pagefind-ignore>
                     <div class="font-mono text-[11.5px] uppercase tracking-[0.06em] text-ink-faint">
                         {group}&nbsp;&nbsp;/&nbsp;&nbsp;<span class="text-accent">{title}</span>
                     </div>
@@ -127,6 +127,7 @@ const editUrl = currentId === "changelog"
                     (prev ?? next) && (
                         <nav
                             aria-label="Page navigation"
+                            data-pagefind-ignore
                             class="mt-14 flex gap-3 border-t border-hairline pt-8 max-[560px]:flex-col"
                         >
                             {prev && (
