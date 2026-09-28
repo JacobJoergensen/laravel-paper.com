@@ -10,6 +10,11 @@ import Layout from "../layouts/Layout.astro";
 const changelog = await getEntry("docs", "changelog");
 const release = /^## Version (\S+) \((\d{4}-\d{2}-\d{2})\)/m.exec(changelog?.body ?? "");
 
+const stars = await fetch("https://api.github.com/repos/jacobjoergensen/laravel-paper")
+    .then((res) => (res.ok ? (res.json() as Promise<{ stargazers_count: number }>) : undefined))
+    .then((repo) => repo?.stargazers_count)
+    .catch(() => undefined);
+
 const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareSourceCode",
@@ -38,7 +43,7 @@ const section = "mx-auto max-w-wide px-(--gutter) pt-28 max-[860px]:pt-20";
     <Nav />
     <main id="main" tabindex="-1" class="scroll-mt-20 focus:outline-none">
         <section class="mx-auto max-w-wide px-(--gutter) pt-24 max-[860px]:pt-16">
-            <Hero version={release?.[1]} />
+            <Hero version={release?.[1]} stars={stars} />
         </section>
 
         <section class={section}>

@@ -3,9 +3,10 @@ import GitHubIcon from "./icons/GitHubIcon.astro";
 
 interface Props {
     version?: string | undefined;
+    stars?: number | undefined;
 }
 
-const { version } = Astro.props;
+const { version, stars } = Astro.props;
 
 const repoUrl = "https://github.com/jacobjoergensen/laravel-paper";
 ---
@@ -43,6 +44,13 @@ const repoUrl = "https://github.com/jacobjoergensen/laravel-paper";
             class="inline-flex items-center gap-2.25 rounded-[9px] border border-hairline-strong px-5 py-3.25 text-[15px] font-medium text-ink no-underline transition hover:bg-canvas-raised"
         >
             <GitHubIcon size={16} /> GitHub
+            {
+                stars !== undefined && (
+                    <span class="border-l border-hairline-strong pl-2.25 font-mono text-[13px] text-ink-muted">
+                        &#9733; {stars.toLocaleString("en-US")}
+                    </span>
+                )
+            }
         </a>
     </div>
 </div>
