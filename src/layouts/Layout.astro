@@ -75,10 +75,12 @@ const socialImageURL = new URL(image, Astro.site);
 
                 navigator.clipboard?.writeText(btn.dataset.copyText ?? "").catch(() => {});
 
-                btn.textContent = "✓ Copied";
+                const status = btn.querySelector("[data-copy-status]") ?? btn;
+
+                status.textContent = "✓ Copied";
 
                 setTimeout(() => {
-                    btn.textContent = "Copy";
+                    status.textContent = btn.dataset.copyLabel ?? "Copy";
                 }, 1500);
             });
         </script>

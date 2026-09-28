@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
+import { toMarkdown } from "../../config/Markdown";
 import DocsLayout from "../../layouts/DocsLayout.astro";
 
 export async function getStaticPaths() {
@@ -20,6 +21,7 @@ const { Content, headings } = await render(entry);
     description={entry.data.description}
     currentId={entry.id}
     headings={headings}
+    markdown={toMarkdown(entry.data.title, entry.data.description, entry.body ?? "")}
 >
     <Content />
 </DocsLayout>

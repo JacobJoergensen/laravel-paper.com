@@ -1,5 +1,6 @@
 ---
 import ArrowUpRightIcon from "../components/icons/ArrowUpRightIcon.astro";
+import CopyIcon from "../components/icons/CopyIcon.astro";
 import Nav from "../components/Nav.astro";
 import { getDocsNav, groupForSlug, siblingsForSlug } from "../config/DocsNav";
 import Layout from "./Layout.astro";
@@ -11,9 +12,10 @@ interface Props {
     description: string;
     currentId: string;
     headings: MarkdownHeading[];
+    markdown: string;
 }
 
-const { title, description, currentId, headings } = Astro.props;
+const { title, description, currentId, headings, markdown } = Astro.props;
 
 const toc = headings.filter((h) => h.depth === 2);
 
@@ -100,15 +102,26 @@ const editUrl = currentId === "changelog"
                     <div class="font-mono text-[11.5px] uppercase tracking-[0.06em] text-ink-faint">
                         {group}&nbsp;&nbsp;/&nbsp;&nbsp;<span class="text-accent">{title}</span>
                     </div>
-                    <a
-                        href={editUrl}
-                        class="flex items-center gap-2 text-[12.5px] text-ink-muted no-underline transition hover:text-ink"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        <ArrowUpRightIcon size={13} />
-                        Edit this page
-                    </a>
+                    <div class="flex items-center gap-5">
+                        <button
+                            type="button"
+                            class="flex cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-[12.5px] text-ink-muted transition hover:text-ink"
+                            data-copy-text={markdown}
+                            data-copy-label="Copy as Markdown"
+                        >
+                            <CopyIcon size={13} />
+                            <span data-copy-status>Copy as Markdown</span>
+                        </button>
+                        <a
+                            href={editUrl}
+                            class="flex items-center gap-2 text-[12.5px] text-ink-muted no-underline transition hover:text-ink"
+                            target="_blank"
+                            rel="noopener"
+                        >
+                            <ArrowUpRightIcon size={13} />
+                            Edit this page
+                        </a>
+                    </div>
                 </div>
 
                 <h1
