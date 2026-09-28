@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
+import { codeBlock, shiki } from "./src/config/Code";
 
 export default defineConfig({
     site: "https://laravel-paper.com",
@@ -46,12 +47,6 @@ export default defineConfig({
         plugins: [tailwindcss()],
     },
     markdown: {
-        shikiConfig: {
-            themes: {
-                light: "github-light",
-                dark: "github-dark",
-            },
-            defaultColor: "light",
-        },
+        shikiConfig: { ...shiki, transformers: [codeBlock] },
     },
 });

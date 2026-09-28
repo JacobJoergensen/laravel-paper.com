@@ -340,6 +340,51 @@ const editUrl = currentId === "changelog"
         font-family: var(--font-mono), monospace;
     }
 
+    .prose :global(.code-block) {
+        margin: 18px 0;
+        border: 1px solid var(--color-hairline);
+        border-radius: 11px;
+        overflow: hidden;
+    }
+
+    .prose :global(.code-block pre) {
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .prose :global(.code-block-header) {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--color-hairline);
+        background: var(--color-canvas-raised);
+        font-family: var(--font-mono), monospace;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        color: var(--color-ink-faint);
+    }
+
+    .prose :global(.code-block-header button) {
+        cursor: pointer;
+        padding: 4px 9px;
+        border: 1px solid var(--color-hairline);
+        border-radius: 6px;
+        background: transparent;
+        font: inherit;
+        letter-spacing: 0;
+        color: var(--color-ink-muted);
+        transition:
+            color 150ms,
+            border-color 150ms;
+    }
+
+    .prose :global(.code-block-header button:hover) {
+        border-color: var(--color-hairline-strong);
+        color: var(--color-ink);
+    }
+
     .prose :global(table) {
         display: block;
         overflow-x: auto;
