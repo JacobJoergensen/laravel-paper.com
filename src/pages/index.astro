@@ -40,7 +40,9 @@ const section = "mx-auto max-w-wide px-(--gutter) pt-28 max-[860px]:pt-20";
 
 <Layout>
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
     <Nav />
+
     <main id="main" tabindex="-1" class="scroll-mt-20 focus:outline-none">
         <section class="mx-auto max-w-wide px-(--gutter) pt-24 max-[860px]:pt-16">
             <Hero version={release?.[1]} stars={stars} />
