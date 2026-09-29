@@ -295,6 +295,18 @@ const editUrl = currentId === "changelog"
         padding-left: 22px;
     }
 
+    .prose :global(ul) {
+        list-style: disc;
+    }
+
+    .prose :global(ol) {
+        list-style: decimal;
+    }
+
+    .prose :global(li::marker) {
+        color: var(--color-ink-faint);
+    }
+
     .prose :global(li) {
         font-size: 16px;
         line-height: 1.7;
