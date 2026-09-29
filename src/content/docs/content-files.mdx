@@ -140,4 +140,6 @@ that failed. Every Paper exception extends `PaperException`:
 | `InvalidDriverException`            | `#[Driver]` names a driver that is not registered                 |
 | `InvalidSlugException`              | A slug is missing, or contains a separator or a dot segment       |
 | `UnsupportedDatabaseQueryException` | `newQuery`, `newModelQuery` or `on` is called on a Paper model    |
-| `UnsupportedRouteBindingException`  | A scoped child binding is resolved through a Paper model          |
+| `UnsupportedRouteBindingException`  | Deprecated and will be removed in 2.0                             |
+
+To check every file before a query hits it, run [`paper:validate`](/docs/commands).

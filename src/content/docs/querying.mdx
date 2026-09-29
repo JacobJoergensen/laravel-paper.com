@@ -40,19 +40,19 @@ Post::where('published', true)->find('draft-post'); // null
 
 ## Constraints
 
-| Method                              | Matches                                                           |
-| ----------------------------------- | ----------------------------------------------------------------- |
-| `where($column, $value)`            | Equality, compared loosely                                        |
-| `where($column, $operator, $value)` | `=`, `==`, `===`, `!=`, `<>`, `!==`, `>`, `>=`, `<`, `<=`, `like` |
-| `whereIn` / `whereNotIn`            | Membership in a list of values                                    |
-| `whereNull` / `whereNotNull`        | A missing or null key                                             |
-| `whereBetween` / `whereNotBetween`  | An inclusive range, bounds read by position                       |
-| `whereContains`                     | A value inside an array field                                     |
-| `whereLike` / `whereNotLike`        | A `%` pattern, case insensitive by default                        |
-| `whereAny` / `whereAll`             | One constraint across several columns                             |
-| `whereRegexp` / `whereNotRegexp`    | A regular expression                                              |
-| `whereColumn`                       | One field compared to another                                     |
-| `whereDate` and friends             | One part of a date                                                |
+| Method                              | Matches                                                                       |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| `where($column, $value)`            | Equality, compared loosely                                                    |
+| `where($column, $operator, $value)` | `=`, `==`, `===`, `!=`, `<>`, `!==`, `>`, `>=`, `<`, `<=`, `like`, `not like` |
+| `whereIn` / `whereNotIn`            | Membership in a list of values                                                |
+| `whereNull` / `whereNotNull`        | A missing or null key                                                         |
+| `whereBetween` / `whereNotBetween`  | An inclusive range, bounds read by position                                   |
+| `whereContains`                     | A value inside an array field                                                 |
+| `whereLike` / `whereNotLike`        | A `%` pattern, case insensitive by default                                    |
+| `whereAny` / `whereAll`             | One constraint across several columns                                         |
+| `whereRegexp` / `whereNotRegexp`    | A regular expression                                                          |
+| `whereColumn`                       | One field compared to another                                                 |
+| `whereDate` and friends             | One part of a date                                                            |
 
 Each has an `or` counterpart: `orWhere`, `orWhereIn`, `orWhereContains`, and so on.
 

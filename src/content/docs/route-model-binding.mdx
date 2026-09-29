@@ -5,8 +5,6 @@ group: Reference
 order: 100
 ---
 
-import Callout from "../../components/docs/Callout.astro";
-
 ```php
 Route::get('/posts/{post}', function (Post $post) {
     return view('posts.show', ['post' => $post]);
@@ -42,7 +40,16 @@ class Post extends Model
 }
 ```
 
-<Callout label="note">
-    Scoped child bindings, like `/authors/{author}/posts/{post}` where the child is looked up within the parent, raise
-    `UnsupportedRouteBindingException`. Resolve the child in the controller instead.
-</Callout>
+## Scoped bindings
+
+A child route parameter can be scoped to its parent through a [relationship](/docs/relationships):
+
+```php
+Route::get('/authors/{author}/posts/{post}', function (Author $author, Post $post) {
+    // ...
+})->scopeBindings();
+```
+
+A post that belongs to another author gives a 404.
+
+The post is looked up through `Author::posts()`, which has to use `hasManyPaper`.

@@ -1,0 +1,26 @@
+---
+title: Commands
+description: The Artisan commands that ship with Paper.
+group: Reference
+order: 120
+---
+
+## paper:validate
+
+Reads every content file and reports the ones that fail to load:
+
+```bash
+php artisan paper:validate
+php artisan paper:validate "App\Models\Post" "App\Models\Author"
+```
+
+Without arguments it checks every Paper model in `app/Models`. A model with no files shows
+`no content files found`.
+
+It also reports a file that shares its slug with another. Only the
+[first extension](/docs/custom-drivers#implement-the-contract) is read, so a query never sees the
+other file.
+
+The command exits with a non-zero code when a file fails. `--json` prints the failures as a list of
+`model`, `path` and `error`. The `path` is `null` when the whole model fails, like a missing
+content directory.
