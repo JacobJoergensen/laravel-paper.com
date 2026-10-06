@@ -20,12 +20,12 @@
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
-        "oxfmt": "^0.70.0",
-        "oxlint": "^1.85.0",
+        "oxfmt": "^0.71.0",
+        "oxlint": "^1.86.0",
         "oxlint-tsgolint": "^7.0.2003",
         "pagefind": "^1.5.2",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
-        "wrangler": "^4.142.0"
+        "wrangler": "^4.147.0"
     }
 }
