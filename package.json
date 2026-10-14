@@ -14,18 +14,18 @@
         "node": ">=24.18.0"
     },
     "dependencies": {
-        "@astrojs/mdx": "^8.0.2",
+        "@astrojs/mdx": "^8.0.3",
         "@astrojs/sitemap": "^3.7.4",
-        "astro": "^7.3.5"
+        "astro": "^7.3.8"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
-        "oxfmt": "^0.71.0",
-        "oxlint": "^1.86.0",
-        "oxlint-tsgolint": "^7.0.2003",
+        "oxfmt": "^0.73.0",
+        "oxlint": "^1.88.0",
+        "oxlint-tsgolint": "^7.0.2004",
         "pagefind": "^1.5.2",
         "tailwindcss": "^4.3.3",
         "typescript": "^7.0.2",
-        "wrangler": "^4.147.0"
+        "wrangler": "^4.150.0"
     }
 }
