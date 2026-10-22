@@ -33,12 +33,10 @@ The body is trimmed and stored as written. Paper does not render Markdown, so pa
 through `Str::markdown()` at the point of display.
 
 A file with no frontmatter is still a record, with a slug and a `content` attribute. Saving a
-record that has only content writes no frontmatter block.
+record that has only content writes no frontmatter block. A `content` that is not a string throws
+on save.
 
-<Callout label="yaml">
-    An unquoted `date: 2024-03-15` is a Unix timestamp to YAML, not a string. Quote it, or add a `'date' => 'date'`
-    cast, so range comparisons behave.
-</Callout>
+An unquoted `date: 2024-03-15` reads as the string `"2024-03-15"` and is written back the same way.
 
 ## JSON
 
@@ -82,7 +80,7 @@ $speaker->topics; // ["php", "laravel"]
 ```
 
 The root has to be a mapping, and an empty file is a record with no fields. Multi-line strings are
-written back as `|-` literal blocks. As in frontmatter, an unquoted date is a Unix timestamp.
+written back as `|-` literal blocks. As in frontmatter, an unquoted date reads as a string.
 
 <Callout label="comments">
     Saving rewrites the file from the record's attributes, so its comments are lost. That includes comments in Markdown
@@ -105,7 +103,8 @@ $post = Post::find('hello-world');
 $posts = Post::findMany(['hello-world', 'my-second-post']);
 ```
 
-Dotfiles are skipped. To change a slug, rename the file, or set `slug` and
+Dotfiles are skipped. Slugs are case sensitive on every system, so `find('Hello-World')` does not
+match `hello-world.md`. To change a slug, rename the file, or set `slug` and
 [save](/docs/writing#changing-a-slug). A slug cannot contain `/`, `\`, `.` or `..`, since those
 would point outside the content directory.
 
