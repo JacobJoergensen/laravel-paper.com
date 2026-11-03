@@ -106,7 +106,8 @@ $posts = Post::findMany(['hello-world', 'my-second-post']);
 Dotfiles are skipped. Slugs are case sensitive on every system, so `find('Hello-World')` does not
 match `hello-world.md`. To change a slug, rename the file, or set `slug` and
 [save](/docs/writing#changing-a-slug). A slug cannot contain `/`, `\`, `.` or `..`, since those
-would point outside the content directory.
+would point outside the content directory. On Windows it also cannot contain `<`, `>`, `:`, `"`,
+`|`, `?`, `*` or a control character.
 
 ## URLs that differ from the filename
 
@@ -137,7 +138,7 @@ that failed. Every Paper exception extends `PaperException`:
 | `FileParseException`                | A file is unreadable, or its frontmatter, JSON or YAML is invalid |
 | `FileSerializeException`            | A driver cannot write a value                                     |
 | `InvalidDriverException`            | `#[Driver]` names a driver that is not registered                 |
-| `InvalidSlugException`              | A slug is missing, or contains a separator or a dot segment       |
+| `InvalidSlugException`              | A slug is missing, or contains a character a slug cannot have     |
 | `UnsupportedDatabaseQueryException` | `newQuery`, `newModelQuery` or `on` is called on a Paper model    |
 | `UnsupportedRouteBindingException`  | Deprecated and will be removed in 2.0                             |
 

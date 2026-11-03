@@ -29,6 +29,7 @@ On an update, the record being edited already holds the value. Skip it:
 
 ```php
 PaperRule::unique(Post::class)->ignore($post->slug);
+PaperRule::unique(Post::class)->ignore($post);
 ```
 
 `ignore` matches on the model's key, which is `slug`. Pass a column as the second argument to

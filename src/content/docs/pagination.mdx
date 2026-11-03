@@ -18,7 +18,7 @@ Both return Laravel's paginators:
 {{ $posts->links() }}
 ```
 
-Pass `0` as the page size to use the model's `$perPage`.
+Pass `0` or a negative number as the page size to use the model's `$perPage`.
 
 With no `where` clause, and ordered by slug or not ordered at all, `paginate` reads only the files
 on the page it returns. A `where`, a random order, or ordering by a frontmatter field means every
