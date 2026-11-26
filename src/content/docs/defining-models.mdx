@@ -135,5 +135,6 @@ protected $casts = [
 ];
 ```
 
-An `array`, `json`, `object` or `collection` cast is written back as real YAML or JSON structure,
-not as an encoded string.
+An `array`, `json`, `json:unicode`, `object` or `collection` cast is written back as real YAML or
+JSON structure, not as an encoded string. The same goes for `AsArrayObject`, `AsCollection`,
+`AsEnumArrayObject`, `AsEnumCollection` and `AsFluent`.
